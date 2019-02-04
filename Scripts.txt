@@ -1,0 +1,102 @@
+
+1)  Create a directory for twitter streams
+ cd /usr/lib/spark 
+ sudo mkdir tweets 
+ cd tweetscd
+ sudo mkdir data 
+ sudo mkdir training
+ sudo chmod  777 /usr/lib/spark/tweets/ 
+   
+
+   data :Would contain the master of the csv files which we would pretend coming from a training        source
+
+   training :  Source to train our machine learning algorithm
+
+  
+
+2) Download twitter data using
+
+sudo wget https://raw.githubusercontent.com/chimpler/tweet-heatmap/master/tweets_tech.csv
+
+Every record in this contains longitue and latitude position and the third column is the actual tweet
+
+
+3) split the files
+
+sudo split tweets_tech.csv
+
+4) Move all the  split files to data directory
+sudo mv /usr/lib/spark/tweets/x* /usr/lib/spark/tweets/data/
+
+
+5) Create a spark streaming file
+sudo vi streaming_ml.py
+
+
+import sys
+
+import sched, time
+
+from pyspark import SparkContext
+from pyspark.streaming import StreamingContext
+
+from pyspark.mllib.linalg import Vectors
+from pyspark.mllib.clustering import StreamingKMeans
+
+if __name__ == "__main__":
+
+    sc = SparkContext(appName="StreamingKMeansClustering")
+    ssc = StreamingContext(sc, 10)
+
+    ssc.checkpoint("file:///tmp/spark")
+
+    def parseTrainingData(line):
+      cells = line.split(",")
+      return Vectors.dense([float(cells[0]), float(cells[1])])
+
+    trainingStream = ssc.textFileStream("file:///Users/jananiravi/spark/spark-2.1.0-bin-without-hadoop/tweets/training")\
+      .map(parseTrainingData)
+
+    trainingStream.pprint();
+
+    model = StreamingKMeans(k=2, decayFactor=1.0).setRandomCenters(2, 1.0, 0)
+
+    print("Initial centers: " + str(model.latestModel().centers))
+
+    model.trainOn(trainingStream)
+
+    ssc.start()
+
+    s = sched.scheduler(time.time, time.sleep)
+    def print_cluster_centers(sc, model): 
+        print("Cluster centers: " + str(model.latestModel().centers))
+        s.enter(10, 1, print_cluster_centers, (sc, model))
+
+    s.enter(10, 1, print_cluster_centers, (s, model))
+    s.run()
+
+    ssc.awaitTermination()
+
+
+6) submit spark job
+spark-submit streaming_ml.py
+
+Job job would start listening to the streaming cluster
+
+7) Move data file from data folder to training folder
+sudo mv /usr/lib/spark/tweets/data/xaa /usr/lib/spark/twee
+ts/training/
+ 
+8) After moving the files we would see the initial centers
+
+
+Note: 
+
+1) While streaming any existing files in the directory would be ignored.only new files would be considered.
+
+2) While the new files arrives the cluster centers would be updated .The K means algorithm has calculated the cluster centers for where the location tweets are concentrated
+
+
+9) Initial locations after the firt flie is moved
+[ 1.76405235 0.40015721 ]
+[ 0.97873798 0.40015721 ]
