@@ -7,11 +7,9 @@
  sudo mkdir training
  sudo chmod  777 /usr/lib/spark/tweets/ 
    
-
-   data :Would contain the master of the csv files which we would pretend coming from a training        source
-
-   training :  Source to train our machine learning algorithm
-
+These are the two folders which we would be using in this project 
+data :Would contain the master of the csv files which we would pretend coming from a training source.
+training :  Source to train our machine learning algorithm
   
 
 2) Download twitter data using
@@ -54,7 +52,7 @@ if __name__ == "__main__":
       cells = line.split(",")
       return Vectors.dense([float(cells[0]), float(cells[1])])
 
-    trainingStream = ssc.textFileStream("file:///Users/jananiravi/spark/spark-2.1.0-bin-without-hadoop/tweets/training")\
+    trainingStream = ssc.textFileStream("file:///usr/lib/spark/tweets/training")\
       .map(parseTrainingData)
 
     trainingStream.pprint();
@@ -81,7 +79,27 @@ if __name__ == "__main__":
 6) submit spark job
 spark-submit streaming_ml.py
 
-Job job would start listening to the streaming cluster
+ ****
+
+Note:By default spark-submit might not work and would throw exception as shown below
+
+ "ImportError: No module named numpy". 
+
+Solution :
+
+Install pip and then numpy 
+
+	1) CD to pyspark directory. You find the path where error is thrown. The path shown below is for my sandbox
+		/usr/hdp/current/spark-client/python/lib/pyspark
+
+	2) Install pip
+		yum install python-pip
+	3) install numpy
+		pip install numpy
+	4) unpgrade pip (This step might not be needed). 
+    		pip install --upgrade pip
+
+ spark job would start listening to the streaming cluster
 
 7) Move data file from data folder to training folder
 sudo mv /usr/lib/spark/tweets/data/xaa /usr/lib/spark/twee
@@ -91,12 +109,41 @@ ts/training/
 
 
 Note: 
+  1) While streaming any existing files in the directory would be ignored.only new files would be considered.
+  2) While the new files arrives the cluster centers would be updated .The K means algorithm has calculated the cluster centers for where the location tweets are concentrated
 
-1) While streaming any existing files in the directory would be ignored.only new files would be considered.
-
-2) While the new files arrives the cluster centers would be updated .The K means algorithm has calculated the cluster centers for where the location tweets are concentrated
-
-
-9) Initial locations after the firt flie is moved
+9) Initial locations before the first flie is moved
 [ 1.76405235 0.40015721 ]
 [ 0.97873798 0.40015721 ]
+
+DECAY FACTOR =1
+When decay factor is set to 1, it would consider all the data from initial to the resent data.
+
+We can see these locations in google maps as shown below
+
+10) Move the first file to the training folder.
+cp /usr/lib/spark/tweets/data/xaa /usr/lib/spark/tweets/training/
+Co-ordinates for the 1st cluster 
+
+ [22.79589238, -79.61550025]
+ Location after the first file is moved. It is somewhere between Florida and cuba for the cluster center
+
+Co-ordinates for the 2nd cluster
+ [10.03386625, 103.83779637]
+11) Move the 2nd file to the training folder
+The co-ordinates would change as shown below.
+
+DECAY FACTOR =0
+
+When we set the decay factor to 0.0 It would only consider the recent batch of data.
+
+12) Delete all the files from the data directory.
+
+rm -r x*
+
+
+13)create a new streaming_ml.py file with decay factor as 0
+
+14) Repeat step 10 and 11 and now we see that co-ordinates would move very far north as shown below
+
+
