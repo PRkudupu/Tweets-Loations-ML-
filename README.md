@@ -2,14 +2,13 @@
 
 ![alt text](tweet_locations.png)
 ## Introduction
-This project has the list of SQL challenges asked in bay area by companies like facebook and google.
-They are written ansi sql in jupyter notebook. Each sql challenge has expected input and output.These collection of sql challenges has been collected from various sourcces like leetcode etc.My aim is to help software engineers to have a common repository, using which they can easily prepare for these interviews and get a successful job offer. 
-You can also find these in my blog <a href=http://www.prathapkudupublog.com/search/label/SQL</a>. 
+In this project we would be working with streaming data in the form of files saved in a directory.Apply K-means clustering algorithm to find where tweets come from i.e (location clusters)
+You can also find these in my blog <a href=http://www.prathapkudupublog.com/2019/02/twittter-location-clustering-spark-mllib.html</a>. 
 
 ### Installation
 <table>
       <tr>
-            <code>git clone https://github.com/PRkudupu/Advanced_sql.git                                                                  </code>
+            <code>git clone https://github.com/PRkudupu/tweet_locations_ml.git                                                                  </code>
       </tr>
       <br>
       <tr>
@@ -18,5 +17,5 @@ You can also find these in my blog <a href=http://www.prathapkudupublog.com/sear
 </table>
 
 ### License 
-Advanced_sql is released under the MIT license:
+tweet_locations_ml is released under the MIT license:
  <a href="https://opensource.org/licenses/MIT">opensource.org/licenses/MIT</a>.
